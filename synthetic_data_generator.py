@@ -172,8 +172,7 @@ def random_value(
 ) -> Any:
     """Generates random sequence for given type.
     Note:
-        Uses only types that occur in MS SQL database -> not universal.
-        I. e. if you need additional data types, add them here.
+        Uses only types that occur in RiO database -> not universal.
     Args:
         data_type (str): what T-SQL data tape is input.
         str_size (int): default text size to be generated.
@@ -401,7 +400,9 @@ def stream_insert_statements(
             _rows_per_table = min(
                 max_rows_per_table, number_of_rows_per_table[_table_name]
             )
-        for pos in range(_rows_per_table):
+
+        pos = 0
+        while pos < _rows_per_table:
             _col_values, _insert_stmt = insert_statement(
                 _table_name,
                 _table_def,
@@ -411,19 +412,21 @@ def stream_insert_statements(
             )
 
             # Check if the Primary Key is unique, if not, repeat the process
-            if _table_name in primary_keys.keys():
+            if (
+                _table_name in primary_keys.keys()
+                and primary_keys[_table_name] is not None
+            ):
                 _value: list = []
-                if primary_keys[_table_name] is None:
-                    continue
                 for _pk_col in primary_keys[_table_name]:
                     _value.append(_col_values[_pk_col])
                 if tuple(_value) in _pk_set:
-                    pos += 1
+                    # Hit the duplicate
                     continue
                 else:
                     _pk_set.add(tuple(_value))
 
             output_stream(_insert_stmt + ";\n")
+            pos += 1
 
 
 # -----------------------------------
