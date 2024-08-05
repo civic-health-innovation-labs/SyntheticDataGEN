@@ -172,7 +172,8 @@ def random_value(
 ) -> Any:
     """Generates random sequence for given type.
     Note:
-        Uses only types that occur in RiO database -> not universal.
+        Uses only types that occur in MS SQL database -> not universal.
+        I. e. if you need additional data types, add them here.
     Args:
         data_type (str): what T-SQL data tape is input.
         str_size (int): default text size to be generated.
